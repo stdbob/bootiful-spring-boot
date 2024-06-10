@@ -22,7 +22,7 @@ record UnsecuredLoan(float interest) implements Loan {}
 class Message {
 	String messageForLoan(Loan l){
 		return switch (l) {
-			case UnsecuredLoan ul -> "oh! too bad. that interest rate is high! " + ul.interest();
+			case UnsecuredLoan (var interest) -> "oh! too bad. that interest rate is high! " + interest;
 			case SecuredLoan sl -> "good job on getting a secured loan!";
 		};
 	}
