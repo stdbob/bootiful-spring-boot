@@ -13,24 +13,18 @@ public class ServiceApplication {
 
 }
 
-interface Loan {}
+sealed interface Loan permits SecuredLoan, UnsecuredLoan {}
 
-class SecuredLoan implements Loan {}
+final class SecuredLoan implements Loan {}
 
-class UnsecuredLoan implements Loan {}
+record UnsecuredLoan(float interest) implements Loan {}
 
 class Message {
 	String messageForLoan(Loan l){
-		if(l instanceof SecuredLoan) {
-			var sl = (SecuredLoan)l;
-			return "good job on getting a secured loan!";
-		}
-		if(l instanceof UnsecuredLoan) {
-			var usl = (UnsecuredLoan)l;
-			return "oh! too bad";
-		}
-
-		throw new IllegalArgumentException("ooops!");
+		return switch (l) {
+			case UnsecuredLoan ul -> "oh! too bad. that interest rate is high! " + ul.interest();
+			case SecuredLoan sl -> "good job on getting a secured loan!";
+		};
 	}
 }
 record Customer(@Id Integer id, String name){}
