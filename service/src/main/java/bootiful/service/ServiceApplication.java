@@ -33,7 +33,8 @@ public class ServiceApplication {
 
 			for (var i = 0; i < 1000; i++) {
 				var first = i == 0;
-				var thread = Thread.ofPlatform().unstarted(() -> {
+//				var thread = Thread.ofPlatform().unstarted(() -> {
+				var thread = Thread.ofVirtual().unstarted(() -> {
 					//InputStream.read()
 					//OutputStream.write()
 					try {
