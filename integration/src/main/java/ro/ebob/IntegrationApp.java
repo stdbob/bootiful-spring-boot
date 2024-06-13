@@ -9,12 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.integration.core.GenericHandler;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.GenericTransformer;
-import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 
 import java.time.Instant;
@@ -32,9 +29,18 @@ public class IntegrationApp {
     }
 
     @Bean
-    ApplicationRunner runner(List<MessageChannel> channels){
+    ApplicationRunner whatChannels(List<MessageChannel> channels){
         return args -> {
             channels.forEach(c -> LOG.info(c.toString()));
+        };
+    }
+
+    @Bean
+    ApplicationRunner sendGreetings(){
+        return args -> {
+            for(int i =0;i<10;i++) {
+                greetings().send(MessageBuilder.withPayload(text()).build());
+            }
         };
     }
 
@@ -44,8 +50,7 @@ public class IntegrationApp {
     @Bean
     IntegrationFlow flow() {
         return IntegrationFlow
-                .from((MessageSource<String>) () -> MessageBuilder.withPayload(text()).build(),
-                        poller -> poller.poller(pm -> pm.fixedRate(100)))
+                .from(greetings())
                 .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
                 .transform((GenericTransformer<String, String>) String::toUpperCase)
                 //.channel(atob())
@@ -57,17 +62,7 @@ public class IntegrationApp {
     }
 
     @Bean
-    IntegrationFlow flow1() {
-        return IntegrationFlow
-            .from(atob())
-            .handle((GenericHandler<String>) (payload, headers) -> {
-                LOG.info("The payload is {}", payload);
-                return null;//terminates the pipeline
-            }).get();
-    }
-
-    @Bean
-    MessageChannel atob() {
+    MessageChannel greetings() {
         return MessageChannels.direct().getObject();
     }
 }
