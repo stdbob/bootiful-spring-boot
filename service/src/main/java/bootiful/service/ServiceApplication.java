@@ -1,5 +1,7 @@
 package bootiful.service;
 
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.annotation.Id;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collection;
+import java.util.Map;
 
 @SpringBootApplication
 public class ServiceApplication {
@@ -37,5 +40,34 @@ class CustomerController {
 	@GetMapping("/customers")
 	Collection<Customer> customers() {
 		return  repository.findAll();
+	}
+}
+
+@Controller
+@ResponseBody
+class StoryTimeController {
+
+	private final ChatClient singularity;
+
+    StoryTimeController(ChatClient.Builder chatClientBuilder) {
+        this.singularity = chatClientBuilder.build();
+    }
+
+	@GetMapping("/story")
+	Map<String,String> story(){
+		var prompt = """
+				Dear Singularity,
+				
+				Please write a story about the amazing Java and Spring developers of
+				Bucharest, Romania.
+				
+				And, please write it in the style of famed children's book author Ion Creanga.
+				
+				Cordially,
+				Alin
+				""";
+		var request = this.singularity.prompt(new Prompt(prompt));
+
+		return Map.of("story", request.call().content());
 	}
 }
