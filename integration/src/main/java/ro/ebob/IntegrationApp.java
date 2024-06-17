@@ -11,7 +11,7 @@ import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.GenericTransformer;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.MessageChannels;
+import org.springframework.integration.dsl.context.IntegrationFlowContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -39,6 +40,15 @@ public class IntegrationApp {
         };
     }
 
+    @Bean
+    ApplicationRunner runFlow(MyMessageSource myMessageSource, IntegrationFlowContext context){
+        return args -> {
+            IntegrationFlow flow1 = buildFlow(myMessageSource, "Hola", Duration.ofSeconds(1));
+            IntegrationFlow flow2 = buildFlow(myMessageSource, "Hello", Duration.ofSeconds(2));
+            Set.of(flow1, flow2).forEach(flow -> context.registration(flow).register().start());
+        };
+    }
+
     @Component
     static class MyMessageSource implements MessageSource<String> {  //poll or wait for events
 
@@ -52,11 +62,10 @@ public class IntegrationApp {
         }
     }
 
-    @Bean
-    IntegrationFlow flow(MyMessageSource myMessageSource) {
+    private static IntegrationFlow buildFlow(MyMessageSource myMessageSource, String filterText, Duration fixedRate) {
         return IntegrationFlow
-                .from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
-                .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
+                .from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(fixedRate)))
+                .filter(String.class, (GenericSelector<String>) source -> source.contains(filterText))
                 .transform((GenericTransformer<String, String>) String::toUpperCase)
                 //handler(GenericHandler returning null acts like a filter)
                 //.channel(atob())
