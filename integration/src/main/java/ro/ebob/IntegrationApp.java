@@ -9,11 +9,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.integration.core.GenericHandler;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.GenericTransformer;
+import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -35,34 +39,31 @@ public class IntegrationApp {
         };
     }
 
-    @Bean
-    ApplicationRunner sendGreetings(){
-        return args -> {
-            for(int i =0;i<10;i++) {
-                greetings().send(MessageBuilder.withPayload(text()).build());
-            }
-        };
+    @Component
+    static class MyMessageSource implements MessageSource<String> {  //poll or wait for events
+
+        @Override
+        public Message<String> receive() {
+            return MessageBuilder.withPayload(text()).build();
+        }
+
+        private static String text() {
+            return Math.random() > 0.5 ? "Hello world @" + Instant.now() + "!" : "Hola el mundo @" + Instant.now() + "!";
+        }
     }
 
-    private String text() {
-        return Math.random() > 0.5 ? "Hello world @" + Instant.now() + "!" : "Hola el mundo @" + Instant.now() + "!";
-    }
     @Bean
-    IntegrationFlow flow() {
+    IntegrationFlow flow(MyMessageSource myMessageSource) {
         return IntegrationFlow
-                .from(greetings())
+                .from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
                 .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
                 .transform((GenericTransformer<String, String>) String::toUpperCase)
+                //handler(GenericHandler returning null acts like a filter)
                 //.channel(atob())
                 .handle((GenericHandler<String>) (payload, headers) -> {
                     LOG.info("The payload is {}", payload);
                     return null;//terminates the pipeline
                 })
                 .get();
-    }
-
-    @Bean
-    MessageChannel greetings() {
-        return MessageChannels.direct().getObject();
     }
 }
