@@ -2,13 +2,14 @@ package ro.ebob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.core.GenericHandler;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.core.GenericTransformer;
@@ -17,7 +18,6 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +37,16 @@ public class IntegrationApp {
     }
 
     @Bean
-    ApplicationRunner whatChannels(List<MessageChannel> channels){
+    CommandLineRunner commandLineRunner(MsgGtw gtw) {
         return args -> {
-            channels.forEach(c -> LOG.info(c.toString()));
-            this.greetingsResults().subscribe((payload) -> {
-                LOG.info("SUBSCRIBED:: {}", payload);
-            });
+            gtw.sendGreeting("TEST");
+        };
+    }
+
+    @Bean
+    ApplicationRunner whatChannels(List<MessageChannel> channels, MsgGtw gtw){
+        return args -> {
+            channels.forEach(c -> LOG.error("CHANNEL: {}", c));
         };
     }
 
@@ -54,62 +58,55 @@ public class IntegrationApp {
             return MessageBuilder.withPayload(text()).build();
         }
 
-        public static String text() {
+        private static String text() {
             return Math.random() > 0.5 ? "Hello world @" + Instant.now() + "!" : "Hola el mundo @" + Instant.now() + "!";
         }
     }
 
     @Bean
-    MessageChannel greetings() {
+    MessageChannel atob() {
         return MessageChannels.direct().getObject();
     }
 
-    @Bean
-    DirectChannel greetingsResults() {
-        return MessageChannels.direct().getObject();
-    }
+//    @Bean
+//    IntegrationFlow flowA(MyMessageSource myMessageSource) {
+//        return IntegrationFlow.from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
+//            .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
+//            .transform((GenericTransformer<String, String>) String::toUpperCase)
+//            //handler(GenericHandler returning null acts like a filter)
+//            .channel(atob())
+////            .handle((GenericHandler<String>) (payload, headers) -> {
+////                LOG.info("The payload is {}", payload);
+////                return null;//terminates the pipeline
+////            })
+//            .get();
+//    }
 
-    @Bean
-    IntegrationFlow flow(MyMessageSource myMessageSource) {
-        return IntegrationFlow
-                .from("greetings")
-                .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
-                .transform((GenericTransformer<String, String>) String::toUpperCase)
-                //handler(GenericHandler returning null acts like a filter)
-                .channel("greetingsResults")
+//    @Bean
+//    IntegrationFlow flowB() {
+//        return IntegrationFlow
+//                .from(atob())
+//                .transform((GenericTransformer<String, String>) source -> source.toUpperCase())
 //                .handle((GenericHandler<String>) (payload, headers) -> {
-//                    LOG.info("RESULT:: {}", payload);
+//                    LOG.info("flowB: {}", payload);
 //                    return null;//terminates the pipeline
-//                })
-                .get();
-    }
-    //@Bean
-    IntegrationFlow fromResults() {
-        return IntegrationFlow.from(greetingsResults()).handle((GenericHandler<String>) (payload, headers) -> {
-                    LOG.info("fromResults:: {}", payload);
-                    return null;//terminates the pipeline
-                }).get();
-    }
-}
-
-@Component
-class Runner implements ApplicationRunner {
-
-    final GreetingsClient gateway;
-
-    Runner(GreetingsClient gateway) {
-        this.gateway = gateway;
-    }
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        for (int i = 0; i < 10; i++) {
-            gateway.greet(IntegrationApp.MyMessageSource.text());
+//                }).get();
+//    }
+        @ServiceActivator(inputChannel = "atob")//equivalent with the above
+        public void exampleHandler(String payload) {
+            LOG.warn("Service: {}", payload);
         }
-    }
 }
+//
+//@MessagingGateway(defaultRequestChannel = "greetings", defaultReplyChannel = "greetingsResults", defaultRequestTimeout = "1000", defaultReplyTimeout = "1000")
+//interface GreetingsClient {
+//    String greet(String text);
+//}
 
-@MessagingGateway(defaultRequestChannel = "greetings", defaultReplyChannel = "greetingsResults", defaultRequestTimeout = "1000", defaultReplyTimeout = "1000")
-interface GreetingsClient {
-    String greet(String text);
+@MessagingGateway(defaultRequestChannel = "atob")
+interface MsgGtw {
+
+    //@Gateway(requestChannel="atob")
+    void sendGreeting(String greeting);
+
 }
