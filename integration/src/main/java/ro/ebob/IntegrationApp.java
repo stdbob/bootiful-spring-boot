@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -40,9 +41,21 @@ public class IntegrationApp {
     }
 
     @Bean
-    ApplicationRunner whatChannels(List<MessageChannel> channels) {
+    ApplicationRunner whatChannels(List<MessageChannel> channels, GarbageGateway gateway) {
         return args -> {
             channels.forEach(c -> LOG.error("CHANNEL: {}", c));
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Please enter some input: ");
+
+            while (scanner.hasNextLine()) {
+                String input = scanner.nextLine();
+                System.out.println("You entered: " + input);
+                gateway.sendGarbage(input);
+                System.out.println("Please enter some input: ");
+
+            }
+
+            scanner.close();
         };
     }
 
@@ -67,10 +80,10 @@ public class IntegrationApp {
 //        };
 //    }
 
-//    @Bean
-//    MessageChannel garbageIn() {
-//        return MessageChannels.direct().getObject();
-//    }
+    @Bean
+    MessageChannel garbageIn() {
+        return MessageChannels.direct().getObject();
+    }
 
     @Bean
     MessageChannel garbageOut() {
@@ -79,8 +92,8 @@ public class IntegrationApp {
 
     @Bean
     IntegrationFlow garbageFlow(MyMessageSource myMessageSource) {
-        return IntegrationFlow.from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
-                .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
+        return IntegrationFlow.from("garbageIn")
+//                .filter(String.class, (GenericSelector<String>) source -> source.startsWith("Hola"))
                 .transform((GenericTransformer<String, String>) String::toUpperCase)
                 //handler(GenericHandler returning null acts like a filter)
             .channel("garbageOut")
@@ -95,4 +108,11 @@ public class IntegrationApp {
     public void garbageOutHandler(String payload) {
         System.out.println("garbageOut: " + payload);
     }
+}
+
+@MessagingGateway
+interface GarbageGateway {
+
+    @Gateway(requestChannel = "garbageIn", replyTimeout = 0)
+    void sendGarbage(String message);
 }
