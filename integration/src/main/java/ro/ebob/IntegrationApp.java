@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.core.GenericHandler;
@@ -18,6 +19,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ import java.util.List;
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 @SpringBootApplication
+@IntegrationComponentScan
 public class IntegrationApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntegrationApp.class);
@@ -37,14 +40,7 @@ public class IntegrationApp {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(MsgGtw gtw) {
-        return args -> {
-            gtw.sendGreeting("TEST");
-        };
-    }
-
-    @Bean
-    ApplicationRunner whatChannels(List<MessageChannel> channels, MsgGtw gtw){
+    ApplicationRunner whatChannels(List<MessageChannel> channels) {
         return args -> {
             channels.forEach(c -> LOG.error("CHANNEL: {}", c));
         };
@@ -63,50 +59,40 @@ public class IntegrationApp {
         }
     }
 
+//    @Bean
+//    CommandLineRunner commandLineRunner(MsgGtw gtw) {
+//        return args -> {
+//            gtw.sendGarbage(MyMessageSource.text());
+//            Thread.sleep(10000);
+//        };
+//    }
+
+//    @Bean
+//    MessageChannel garbageIn() {
+//        return MessageChannels.direct().getObject();
+//    }
+
     @Bean
-    MessageChannel atob() {
+    MessageChannel garbageOut() {
         return MessageChannels.direct().getObject();
     }
 
-//    @Bean
-//    IntegrationFlow flowA(MyMessageSource myMessageSource) {
-//        return IntegrationFlow.from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
-//            .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
-//            .transform((GenericTransformer<String, String>) String::toUpperCase)
-//            //handler(GenericHandler returning null acts like a filter)
-//            .channel(atob())
-////            .handle((GenericHandler<String>) (payload, headers) -> {
-////                LOG.info("The payload is {}", payload);
-////                return null;//terminates the pipeline
-////            })
-//            .get();
-//    }
-
-//    @Bean
-//    IntegrationFlow flowB() {
-//        return IntegrationFlow
-//                .from(atob())
-//                .transform((GenericTransformer<String, String>) source -> source.toUpperCase())
+    @Bean
+    IntegrationFlow garbageFlow(MyMessageSource myMessageSource) {
+        return IntegrationFlow.from(myMessageSource, spec -> spec.poller(pollerFactory -> pollerFactory.fixedRate(Duration.ofSeconds(1))))
+                .filter(String.class, (GenericSelector<String>) source -> source.contains("Hola"))
+                .transform((GenericTransformer<String, String>) String::toUpperCase)
+                //handler(GenericHandler returning null acts like a filter)
+            .channel("garbageOut")
 //                .handle((GenericHandler<String>) (payload, headers) -> {
-//                    LOG.info("flowB: {}", payload);
+//                    LOG.info("The payload is {}", payload);
 //                    return null;//terminates the pipeline
-//                }).get();
-//    }
-        @ServiceActivator(inputChannel = "atob")//equivalent with the above
-        public void exampleHandler(String payload) {
-            LOG.warn("Service: {}", payload);
-        }
-}
-//
-//@MessagingGateway(defaultRequestChannel = "greetings", defaultReplyChannel = "greetingsResults", defaultRequestTimeout = "1000", defaultReplyTimeout = "1000")
-//interface GreetingsClient {
-//    String greet(String text);
-//}
+//                })
+                .get();
+    }
 
-@MessagingGateway(defaultRequestChannel = "atob")
-interface MsgGtw {
-
-    //@Gateway(requestChannel="atob")
-    void sendGreeting(String greeting);
-
+    @ServiceActivator(inputChannel = "garbageOut")//equivalent with the above
+    public void garbageOutHandler(String payload) {
+        System.out.println("garbageOut: " + payload);
+    }
 }
