@@ -22,20 +22,12 @@ public class Base64Service {
     this.encoder = Base64.getEncoder();
   }
 
-  public byte[] write(byte[] b, byte[] separator) {
-    //byte[] separator = System.lineSeparator().getBytes(StandardCharsets.UTF_8);
-    byte[] newB = new byte[separator.length + b.length] ;
-    System.arraycopy(b, 0, newB, 0, b.length);
-    System.arraycopy(separator, 0, newB, b.length, separator.length);
-    return encoder.encode(newB);
-  }
-
   public byte[] write(byte[] b) {
     return encoder.encode(b);
   }
 
-  public byte[] write(String b, boolean addNewLine) {
-    return addNewLine ? write(b.getBytes(charset))  : write(b.getBytes(charset), System.lineSeparator().getBytes(charset));
+  public byte[] write(String b) {
+    return write(b.getBytes(charset));
   }
 
   public String read(byte[] b) {
@@ -44,5 +36,9 @@ public class Base64Service {
 
   public String read(String b) {
     return read(b.getBytes(charset));
+  }
+
+  public byte[] newLine() {
+    return System.lineSeparator().getBytes(charset);
   }
 }
