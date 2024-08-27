@@ -3,9 +3,7 @@ package ro.ebob.products;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.util.InputMismatchException;
 import java.util.List;
 
 class ProductRepository {

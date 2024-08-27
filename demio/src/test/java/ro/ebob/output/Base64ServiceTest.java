@@ -66,7 +66,7 @@ class Base64ServiceTest {
   @Test
   void readFile() throws IOException {
 
-      try(RandomAccessFile randomAccessFile = new RandomAccessFile("src/main/resources/products2.json","r");
+      try(RandomAccessFile randomAccessFile = new RandomAccessFile("../products2.json","r");
       FileChannel fileChannel = randomAccessFile.getChannel();
       ) {
 

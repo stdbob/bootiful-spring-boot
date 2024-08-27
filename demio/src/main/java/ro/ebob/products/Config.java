@@ -8,27 +8,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Config {
 
-//    public enum Feature {
-//        INPUT("type", "location");
-//
-//        private String type;
-//        private String location;
-//        Feature(String type, String location) {
-//            this.type = type;
-//            this.location = location;
-//        }
-//
-//        public String property() {
-//            return String.format("%s.%s", type, location);
-//        }
-//    }
-
-//    public static final String INPUT_TYPE = "input.type";
-//    public static final String INPUT_LOCATION = "input.location";
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     public enum Type { FILE }
     public record Input(Type type, String location){}
@@ -46,7 +31,7 @@ public class Config {
         for (int i=0;i<parameters.length;i++) {
             Parameter p = parameters[i];
             if(p.getType().isEnum()) {
-                System.out.println(p.getType().getEnumConstants());
+                logger.info(() -> p.getType().getEnumConstants() == null ? "n/a" : Arrays.toString(p.getType().getEnumConstants()));
             }
             String propertyName = String.format("%s.%s", Input.class.getSimpleName().toLowerCase(), parameters[i].getName().toLowerCase());
             names[i]=propertyName;
