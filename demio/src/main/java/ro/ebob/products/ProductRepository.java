@@ -1,23 +1,24 @@
 package ro.ebob.products;
 
-import ro.ebob.products.model.Product;
-
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.InputMismatchException;
 import java.util.List;
 
 class ProductRepository {
 
-  private final Path source;
+  private final File source;
 
-  public ProductRepository(Path source) {
-    this.source = source;
+  public ProductRepository(File file) {
+    this.source = file;
   }
 
   public List<String> products() {
     try {
-      return Files.readAllLines(source);
+      return Files.readAllLines(source.toPath(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

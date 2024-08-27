@@ -1,5 +1,12 @@
 package ro.ebob;
 
+import ro.ebob.products.Config;
+import ro.ebob.products.ProductService;
+import ro.ebob.products.ProductServiceFactory;
+
+import java.nio.file.Path;
+import java.util.Objects;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
@@ -15,6 +22,7 @@ public class Main {
 //        }
 //    }
     public static void main(String[] args) {
-
+        ProductService productService = ProductServiceFactory.service(new Config.Input(Config.Type.FILE, Objects.requireNonNull(Main.class.getClassLoader().getResource("products.json")).getFile()));
+        productService.products().forEach(System.out::println);
     }
 }

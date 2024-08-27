@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,5 +61,45 @@ class Base64ServiceTest {
         assertThat(line).isBase64();
       }
     }
+  }
+
+  @Test
+  void readFile() throws IOException {
+
+      try(RandomAccessFile randomAccessFile = new RandomAccessFile("src/main/resources/products2.json","r");
+      FileChannel fileChannel = randomAccessFile.getChannel();
+      ) {
+
+          ByteBuffer byteBuffer = ByteBuffer.allocate(512*3);
+          Charset charset = StandardCharsets.UTF_8;
+//          FileChannel fileChannel = ;
+          byte[] newLine = System.lineSeparator().getBytes(charset);
+          byte[] innerBuffer = new byte[newLine.length];
+          int line =0;
+          int i=0;
+          while (fileChannel.read(byteBuffer) > 0) {
+//            byteBuffer.rewind();
+//            System.out.print(charset.decode(byteBuffer));
+            //byteBuffer.rewind();
+//            while (byteBuffer.hasRemaining()) {
+//              while (i < newLine.length && byteBuffer.get() == newLine[i++]) {
+//                if(i == newLine.length) {
+//                  ++line;
+//                }
+//              }
+//              i=0;
+//            }
+
+            byteBuffer.rewind();
+            System.out.print(charset.decode(byteBuffer));
+            byteBuffer.flip();
+          }
+
+          System.out.println("Lines: " + line);
+//          String line;
+//          while ((line = randomAccessFile.readLine()) != null) {
+//            System.out.println(line.length());
+//          }
+      }
   }
 }
