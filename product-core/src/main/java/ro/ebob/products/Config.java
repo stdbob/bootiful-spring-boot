@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class Config {
         for (int i=0;i<parameters.length;i++) {
             String propertyName = String.format("%s.%s", Input.class.getSimpleName().toLowerCase(), parameters[i].getName().toLowerCase());
             Object value = properties.getProperty(propertyName, System.getProperty(propertyName));
-            System.out.printf("Property: %s = %s (%s)%n", propertyName, value, parameters[i].getType().getEnumConstants() == null ? "string" : Arrays.stream(parameters[i].getType().getEnumConstants()).collect(Collectors.toSet()));
+            logger.log(Level.INFO, "{0} = {1} ({2})", new Object[]{propertyName, value, parameters[i].getType().getEnumConstants() == null ? "string" : Arrays.stream(parameters[i].getType().getEnumConstants()).collect(Collectors.toSet())});
             names[i]=propertyName;
         }
         return new Input(

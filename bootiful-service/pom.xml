@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>bootiful</groupId>
-	<artifactId>service</artifactId>
+	<artifactId>bootiful-service</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<name>service</name>
 	<description>Bootiful Spring Boot 3.x by Josh Long</description>

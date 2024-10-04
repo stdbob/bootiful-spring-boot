@@ -9,7 +9,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>integration</artifactId>
+    <artifactId>bootiful-integration</artifactId>
     <description>Let's code: Spring Integration by Josh Long</description>
 
     <properties>
