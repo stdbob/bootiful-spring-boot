@@ -1,9 +1,11 @@
-package ro.ebob.products;
+package ro.ebob.product.service;
+
+import ro.ebob.product.Config;
 
 import java.io.File;
 import java.util.Objects;
 
-import static ro.ebob.products.Config.Type.FILE;
+import static ro.ebob.product.Config.Type.FILE;
 
 public class ProductServiceFactory {
 

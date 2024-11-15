@@ -1,8 +1,8 @@
 package ro.ebob;
 
-import ro.ebob.products.Config;
-import ro.ebob.products.ProductService;
-import ro.ebob.products.ProductServiceFactory;
+import ro.ebob.product.Config;
+import ro.ebob.product.service.ProductService;
+import ro.ebob.product.service.ProductServiceFactory;
 
 import java.util.Objects;
 

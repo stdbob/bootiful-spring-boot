@@ -1,6 +1,6 @@
-package ro.ebob.products;
+package ro.ebob.product.service;
 
-import ro.ebob.products.model.Product;
+import ro.ebob.product.model.Product;
 
 import java.util.List;
 

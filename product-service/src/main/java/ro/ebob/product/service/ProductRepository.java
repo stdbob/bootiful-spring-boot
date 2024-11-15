@@ -1,4 +1,4 @@
-package ro.ebob.products;
+package ro.ebob.product.service;
 
 import java.io.File;
 import java.io.IOException;

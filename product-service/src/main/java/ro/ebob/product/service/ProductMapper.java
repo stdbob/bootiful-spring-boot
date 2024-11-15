@@ -1,8 +1,8 @@
-package ro.ebob.products;
+package ro.ebob.product.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ro.ebob.products.model.Product;
+import ro.ebob.product.model.Product;
 
 import java.util.function.Function;
 

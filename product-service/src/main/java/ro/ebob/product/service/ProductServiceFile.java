@@ -1,6 +1,7 @@
-package ro.ebob.products;
+package ro.ebob.product.service;
 
-import ro.ebob.products.model.Product;
+import ro.ebob.product.Config;
+import ro.ebob.product.model.Product;
 
 import java.io.File;
 import java.util.List;

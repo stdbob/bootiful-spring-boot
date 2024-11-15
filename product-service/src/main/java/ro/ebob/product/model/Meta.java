@@ -1,4 +1,4 @@
-package ro.ebob.products.model;
+package ro.ebob.product.model;
 
 import java.time.Instant;
 
