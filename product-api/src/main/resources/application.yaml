@@ -1,0 +1,6 @@
+spring.application.name: product-api
+
+service:
+  input:
+    type: file
+    location: products.json
