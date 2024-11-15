@@ -2,7 +2,7 @@ package ro.ebob.products;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import ro.ebob.product.Config;
+import ro.ebob.product.service.Config;
 import ro.ebob.product.service.ProductService;
 import ro.ebob.product.service.ProductServiceFactory;
 
@@ -18,8 +18,8 @@ class ProductServiceTest {
   @BeforeAll
   static void setAllUp() throws IOException {
     System.setProperty("input.location", Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("products.json")).getFile());
-    Config config = new Config();
-    productService = ProductServiceFactory.service(config.input());
+    Config.Input input = ProductServiceFactory.fromProperties();
+    productService = ProductServiceFactory.service(input);
   }
 
   @Test

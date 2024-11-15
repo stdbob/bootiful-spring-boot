@@ -1,6 +1,6 @@
 package ro.ebob;
 
-import ro.ebob.product.Config;
+import ro.ebob.product.service.Config;
 import ro.ebob.product.service.ProductService;
 import ro.ebob.product.service.ProductServiceFactory;
 

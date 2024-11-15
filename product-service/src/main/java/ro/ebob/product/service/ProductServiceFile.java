@@ -1,6 +1,5 @@
 package ro.ebob.product.service;
 
-import ro.ebob.product.Config;
 import ro.ebob.product.model.Product;
 
 import java.io.File;
@@ -12,7 +11,7 @@ class ProductServiceFile implements ProductService {
   private final ProductRepository repository;
 
   ProductServiceFile(File file) {
-    this(new ProductRepository(file), new ProductMapper(new Config().objectMapper()));
+    this(new ProductRepository(file), new ProductMapper(ProductServiceFactory.objectMapper()));
   }
 
   ProductServiceFile(ProductRepository repository, ProductMapper mapper) {
