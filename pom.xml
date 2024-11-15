@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>bootiful-integration</module>
-        <module>product-core</module>
+        <module>product-service</module>
+        <module>product-api</module>
     </modules>
 
     <dependencyManagement>
@@ -19,7 +20,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.4</version>
+                <version>3.3.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
